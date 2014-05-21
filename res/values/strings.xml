@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">CacciaAlTesoro</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="button_start">Inizia la caccia al tesoro</string>
+    <string name="hint_titolo">Sei nelle vicinanze di un punto</string>
+    <string name="hint_desc">Segui l\'indovinello e trova il codice da inserire (TODO NFC)</string>
+    <string name="inizia">Inizia</string>
+    <string name="about">About</string>
+    <string name="loc_trying">Localizzazione in corso</string>
+
+</resources>

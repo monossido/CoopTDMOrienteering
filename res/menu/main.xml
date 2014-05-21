@@ -1,0 +1,17 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.lorenzobraghetto.cacciaaltesoro.MainActivity" >
+
+    <item
+        android:id="@+id/break_timer"
+        android:actionViewClass="android.widget.TextView"
+        android:showAsAction="always"
+        android:title="Tempo"/>
+    <item
+        android:id="@+id/bussola"
+        android:icon="@drawable/ic_compass"
+        android:showAsAction="always"
+        android:title="Modalità bussola"/>
+
+</menu>
