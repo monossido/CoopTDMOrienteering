@@ -22,7 +22,6 @@ import org.mapsforge.map.model.MapViewPosition;
 import org.mapsforge.map.model.common.PreferencesFacade;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
@@ -44,6 +43,7 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.lorenzobraghetto.compasslibrary.Geopoint;
 
 public class MapsActivity extends SherlockActivity {
 
@@ -113,7 +113,8 @@ public class MapsActivity extends SherlockActivity {
 		super.onPause();
 		//this.mapView.getModel().save(this.preferencesFacade);
 		//this.preferencesFacade.save();
-		this.downloadLayer.onPause();
+		if (isNetworkAvailable())
+			this.downloadLayer.onPause();
 		myLocationOverlay.disableMyLocation();
 		locationManager.removeUpdates(locationListener);
 	}
@@ -121,7 +122,8 @@ public class MapsActivity extends SherlockActivity {
 	@Override
 	public void onResume() {
 		super.onResume();
-		this.downloadLayer.onResume();
+		if (isNetworkAvailable())
+			this.downloadLayer.onResume();
 		myLocationOverlay.enableMyLocation(false);
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 	}
@@ -144,8 +146,7 @@ public class MapsActivity extends SherlockActivity {
 		super.onMenuItemSelected(featureId, item);
 		switch (item.getItemId()) {
 		case R.id.bussola:
-			Intent compass = new Intent(this, CompassActivity.class);
-			startActivity(compass);
+			CompassActivity.startActivity(this, "asd", "asdlol", new Geopoint(currentPoint.getLocation()), null, "info");
 			break;
 		}
 

@@ -16,6 +16,8 @@ import android.graphics.PaintFlagsDrawFilter;
 import android.util.AttributeSet;
 import android.view.View;
 
+import com.lorenzobraghetto.compasslibrary.AngleUtils;
+
 public class CompassView extends View {
 
 	private Context context = null;
@@ -78,8 +80,8 @@ public class CompassView extends View {
 	public void updateGraphics() {
 		final float newAzimuthShown = smoothUpdate(northMeasured, azimuthShown);
 		final float newCacheHeadingShown = smoothUpdate(cacheHeadingMeasured, cacheHeadingShown);
-		if (Math.abs(difference(azimuthShown, newAzimuthShown)) >= 2 ||
-				Math.abs(difference(cacheHeadingShown, newCacheHeadingShown)) >= 2) {
+		if (Math.abs(AngleUtils.difference(azimuthShown, newAzimuthShown)) >= 2 ||
+				Math.abs(AngleUtils.difference(cacheHeadingShown, newCacheHeadingShown)) >= 2) {
 			azimuthShown = newAzimuthShown;
 			cacheHeadingShown = newCacheHeadingShown;
 			invalidate();
@@ -112,6 +114,7 @@ public class CompassView extends View {
 		remfil = new PaintFlagsDrawFilter(Paint.FILTER_BITMAP_FLAG, 0);
 
 		initialDisplay = true;
+
 		periodicUpdate = AndroidSchedulers.mainThread().createWorker().schedulePeriodically(new UpdateAction(this), 0, 40, TimeUnit.MILLISECONDS);
 	}
 
@@ -173,7 +176,7 @@ public class CompassView extends View {
 	 * @return the new value
 	 */
 	static protected float smoothUpdate(float goal, float actual) {
-		final double diff = difference(actual, goal);
+		final double diff = AngleUtils.difference(actual, goal);
 
 		double offset = 0;
 
@@ -185,14 +188,14 @@ public class CompassView extends View {
 			offset = Math.floor(diff / 10.0);
 		}
 
-		return normalize((float) (actual + offset));
+		return AngleUtils.normalize((float) (actual + offset));
 	}
 
 	@Override
 	protected void onDraw(Canvas canvas) {
 
 		final float azimuthTemp = azimuthShown;
-		final float azimuthRelative = normalize(azimuthTemp - cacheHeadingShown);
+		final float azimuthRelative = AngleUtils.normalize(azimuthTemp - cacheHeadingShown);
 
 		// compass margins
 		final int canvasCenterX = (compassRoseWidth / 2) + ((getWidth() - compassRoseWidth) / 2);
@@ -276,6 +279,13 @@ public class CompassView extends View {
 		return normalize(to - from + 180) - 180;
 	}
 
+	/**
+	 * Normalize an angle so that it belongs to the [0, 360[ range.
+	 * 
+	 * @param angle
+	 *            the angle in degrees
+	 * @return the same angle in the [0, 360[ range
+	 */
 	public static float normalize(final float angle) {
 		return (angle >= 0 ? angle : (360 - ((-angle) % 360))) % 360;
 	}

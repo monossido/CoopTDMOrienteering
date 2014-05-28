@@ -2,6 +2,8 @@ package com.lorenzobraghetto.cacciaaltesoro;
 
 import org.mapsforge.core.model.LatLong;
 
+import android.location.Location;
+
 public class GeoPoints {
 
 	private double lat;
@@ -45,6 +47,13 @@ public class GeoPoints {
 
 	public LatLong getLatLon() {
 		return new LatLong(lat, lon);
+	}
+
+	public Location getLocation() {
+		Location temp = new Location("mioProvider");
+		temp.setLatitude(lat);
+		temp.setLongitude(lon);
+		return temp;
 	}
 
 }

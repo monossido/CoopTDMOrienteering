@@ -1,15 +1,31 @@
 package com.lorenzobraghetto.cacciaaltesoro;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+
+import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
-import android.location.Location;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockActivity;
+import com.lorenzobraghetto.compasslibrary.CompassLibraryApplication;
+import com.lorenzobraghetto.compasslibrary.DirectionProvider;
+import com.lorenzobraghetto.compasslibrary.GeoDirHandler;
+import com.lorenzobraghetto.compasslibrary.Geopoint;
+import com.lorenzobraghetto.compasslibrary.IGeoData;
+import com.lorenzobraghetto.compasslibrary.IWaypoint;
+import com.lorenzobraghetto.compasslibrary.Units;
 
 public class CompassActivity extends SherlockActivity {
 
@@ -29,22 +45,26 @@ public class CompassActivity extends SherlockActivity {
 	private static final String EXTRAS_NAME = "name";
 	private static final String EXTRAS_GEOCODE = "geocode";
 	private static final String EXTRAS_CACHE_INFO = "cacheinfo";
-	//private static final List<IWaypoint> coordinates = new ArrayList<IWaypoint>();
+	private static final List<IWaypoint> coordinates = new ArrayList<IWaypoint>();
+	public static final int UPDATE_GEODIR = 1 << 3;
 
 	/**
 	 * Destination of the compass, or null (if the compass is used for a
 	 * waypoint only).
 	 */
-	Location cache = null;
-	private Location dstCoords = null;
+	//Geocache cache = null;
+	private Geopoint dstCoords = null;
 	private float cacheHeading = 0;
 	private String title = null;
 	private String info = null;
 	private boolean hasMagneticFieldSensor;
 
+	private Resources res;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
 		setContentView(R.layout.compass_activity);
 
 		navType = (TextView) findViewById(R.id.nav_type);
@@ -59,40 +79,37 @@ public class CompassActivity extends SherlockActivity {
 
 		final SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 		hasMagneticFieldSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) != null;
-		if (!hasMagneticFieldSensor) {
-			//	Settings.setUseCompass(false);
-		}
+		//if (!hasMagneticFieldSensor) {
+		//	Settings.setUseCompass(false);
+		//}
 
 		// get parameters
 		Bundle extras = getIntent().getExtras();
-		//if (extras != null) {
-		//final String geocode = extras.getString(EXTRAS_GEOCODE);
-		//if (StringUtils.isNotEmpty(geocode)) {
-		//	cache = DataStore.loadCache(geocode, LoadFlags.LOAD_CACHE_OR_DB);
-		//}
-		//TODO
-		cache = new Location("myprovider");
-		title = "prova";
+		if (extras != null) {
+			final String geocode = extras.getString(EXTRAS_GEOCODE);
+			if (!geocode.isEmpty()) {
+				//cache = DataStore.loadCache(geocode, LoadFlags.LOAD_CACHE_OR_DB);
+				//cache = new Geocache(); //TODO
+			}
+			title = geocode;
+			final String name = extras.getString(EXTRAS_NAME);
+			dstCoords = extras.getParcelable(EXTRAS_COORDS);
+			info = extras.getString(EXTRAS_CACHE_INFO);
 
-		//dstCoords = extras.getParcelable(EXTRAS_COORDS);
-		dstCoords = new Location("myprovider");
-		//info = extras.getString(EXTRAS_CACHE_INFO);
-		info = "asd";
+			if (!name.isEmpty()) {
+				if (!title.isEmpty()) {
+					title += ": " + name;
+				} else {
+					title = name;
+				}
+			}
+		} else {
+			//			Intent pointIntent = new Intent(this, NavigateAnyPointActivity.class);
+			//		startActivity(pointIntent);
 
-		//if (StringUtils.isNotBlank(name)) {
-		//	if (StringUtils.isNotBlank(title)) {
-		//		title += ": " + name;
-		//	} else {
-		//		title = name;
-		//	}
-		//}
-		//} else {
-		//	Intent pointIntent = new Intent(this, NavigateAnyPointActivity.class);
-		//	startActivity(pointIntent);
-
-		//	finish();
-		//	return;
-		//}
+			//			finish();
+			//		return;
+		}
 
 		// set header
 		setTitle();
@@ -101,18 +118,19 @@ public class CompassActivity extends SherlockActivity {
 
 		// make sure we can control the TTS volume
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
+		res = getResources();
 	}
 
 	@Override
 	public void onResume() {
-		//super.onResume(geoDirHandler.start(GeoDirHandler.UPDATE_GEODIR));
 		super.onResume();
+		geoDirHandler.start(UPDATE_GEODIR, this, getWindowManager());
 	}
 
 	@Override
 	public void onDestroy() {
 		compassView.destroyDrawingCache();
-		//SpeechService.stopService(this);
 		super.onDestroy();
 	}
 
@@ -127,18 +145,18 @@ public class CompassActivity extends SherlockActivity {
 		setCacheInfo();
 
 		// Force a refresh of location and direction when data is available.
-		//final CgeoApplication app = CgeoApplication.getInstance();
-		//final IGeoData geo = app.currentGeo();
-		//if (geo != null) {
-		//	geoDirHandler.updateGeoDir(geo, app.currentDirection());
-		//}
+		final CompassLibraryApplication app = new CompassLibraryApplication(this);
+		final IGeoData geo = app.currentGeo();
+		if (geo != null) {
+			geoDirHandler.updateGeoDir(geo, app.currentDirection());
+		}
 	}
 
 	private void setTitle() {
-		if (title.length() > 0) {
+		if (StringUtils.isNotBlank(title)) {
 			setTitle(title);
 		} else {
-			setTitle("Prova");
+			setTitle(res.getString(R.string.navigation));
 		}
 	}
 
@@ -159,17 +177,49 @@ public class CompassActivity extends SherlockActivity {
 		cacheInfoView.setText(info);
 	}
 
-	private void updateDistanceInfo(final Location geo) {
-		if (geo.getLatitude() == 0.0 || dstCoords == null) {
+	private void updateDistanceInfo(final IGeoData geo) {
+		if (geo.getCoords() == null || dstCoords == null) {
 			return;
 		}
 
-		//distanceView.setText(getDistanceFromKilometers(geo.getCoords().distanceTo(dstCoords)));
-		//TODO
+		cacheHeading = geo.getCoords().bearingTo(dstCoords);
+		distanceView.setText(Units.getDistanceFromKilometers(geo.getCoords().distanceTo(dstCoords)));
+		headingView.setText(Math.round(cacheHeading) + "°");
 	}
 
-	//	private GeoDirHandler geoDirHandler = new GeoDirHandler() {
-	//TODO
+	private GeoDirHandler geoDirHandler = new GeoDirHandler() {
+		@Override
+		public void updateGeoDir(final IGeoData geo, final float dir) {
+			try {
+				if (geo.getCoords() != null) {
+					if (geo.getSatellitesVisible() >= 0) {
+						navSatellites.setText(res.getString(R.string.loc_sat) + ": " + geo.getSatellitesFixed() + "/" + geo.getSatellitesVisible());
+					} else {
+						navSatellites.setText("");
+					}
+					navType.setText(res.getString(geo.getLocationProvider().resourceId));
+
+					if (geo.getAccuracy() >= 0) {
+						navAccuracy.setText("±" + Units.getDistanceFromMeters(geo.getAccuracy()));
+					} else {
+						navAccuracy.setText(null);
+					}
+
+					navLocation.setText(geo.getCoords().toString());
+
+					updateDistanceInfo(geo);
+				} else {
+					navType.setText(null);
+					navAccuracy.setText(null);
+					navLocation.setText(res.getString(R.string.loc_trying));
+				}
+
+				updateNorthHeading(DirectionProvider.getDirectionNow(dir, getWindowManager()));
+			} catch (RuntimeException e) {
+				Log.w("CACCIA", "Failed to LocationUpdater location.");
+			}
+		}
+	};
 
 	private void updateNorthHeading(final float northHeading) {
 		if (compassView != null) {
@@ -177,41 +227,25 @@ public class CompassActivity extends SherlockActivity {
 		}
 	}
 
-	public static String getDistanceFromKilometers(final Float distanceKilometers) {
-		if (distanceKilometers == null) {
-			return "?";
+	public static void startActivity(final Context context, final String geocode, final String displayedName, final Geopoint coords, final Collection<IWaypoint> coordinatesWithType,
+			final String info) {
+		coordinates.clear();
+		if (coordinatesWithType != null) {
+			for (IWaypoint coordinate : coordinatesWithType) {
+				if (coordinate != null) {
+					coordinates.add(coordinate);
+				}
+			}
 		}
 
-		final Object[] scaled = scaleDistance(distanceKilometers);
-		String formatString;
-		if ((Double) scaled[0] >= 100) {
-			formatString = "%.0f";
-		} else if ((Double) scaled[0] >= 10) {
-			formatString = "%.1f";
-		} else {
-			formatString = "%.2f";
+		final Intent navigateIntent = new Intent(context, CompassActivity.class);
+		navigateIntent.putExtra(EXTRAS_COORDS, coords);
+		navigateIntent.putExtra(EXTRAS_GEOCODE, geocode);
+		if (null != displayedName) {
+			navigateIntent.putExtra(EXTRAS_NAME, displayedName);
 		}
-
-		return String.format(formatString + " %s", scaled[0], scaled[1]);
-	}
-
-	public static Object[] scaleDistance(final double distanceKilometers) {
-		double distance;
-		String units;
-
-		if (distanceKilometers >= 1) {
-			distance = distanceKilometers;
-			units = "km";
-		} else {
-			distance = distanceKilometers * 1000;
-			units = "m";
-		}
-
-		Object[] objects = new Object[2];
-		objects[0] = distance;
-		objects[1] = units;
-
-		return objects;
+		navigateIntent.putExtra(EXTRAS_CACHE_INFO, info);
+		context.startActivity(navigateIntent);
 	}
 
 }
