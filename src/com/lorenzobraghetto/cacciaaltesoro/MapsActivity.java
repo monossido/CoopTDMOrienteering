@@ -6,6 +6,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.mapsforge.core.graphics.Bitmap;
+import org.mapsforge.core.graphics.Style;
 import org.mapsforge.core.model.LatLong;
 import org.mapsforge.core.model.MapPosition;
 import org.mapsforge.map.android.AndroidPreferences;
@@ -17,6 +18,7 @@ import org.mapsforge.map.layer.LayerManager;
 import org.mapsforge.map.layer.cache.TileCache;
 import org.mapsforge.map.layer.download.TileDownloadLayer;
 import org.mapsforge.map.layer.download.tilesource.OpenStreetMapMapnik;
+import org.mapsforge.map.layer.overlay.FixedPixelCircle;
 import org.mapsforge.map.layer.overlay.Marker;
 import org.mapsforge.map.model.MapViewPosition;
 import org.mapsforge.map.model.common.PreferencesFacade;
@@ -64,6 +66,7 @@ public class MapsActivity extends SherlockActivity {
 	private LocationListener locationListener;
 	private GeoPoints currentPoint;
 	protected Location currentLocation;
+	private FixedPixelCircle tapableCircle;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -80,12 +83,14 @@ public class MapsActivity extends SherlockActivity {
 
 		locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 		locationListener = new LocationListener() {
+
 			public void onLocationChanged(Location location) {
 				currentLocation = location;
 				GeoPoints point = isNearTo(location);
 				if (point != null) {
 					drawHint(point);
 				}
+
 			}
 
 			public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -176,8 +181,10 @@ public class MapsActivity extends SherlockActivity {
 
 		// create the overlay and tell it to follow the location
 		myLocationOverlay = new MyLocationOverlay(this,
-				mapViewPosition, bitmap);
+				mapViewPosition, bitmap, Utils.createPaint(AndroidGraphicFactory.INSTANCE.createColor(90, 15, 20, 25), 0,
+						Style.FILL), null);
 		myLocationOverlay.setSnapToLocationEnabled(false);
+
 		layerManager.getLayers().add(this.myLocationOverlay);
 	}
 
@@ -252,6 +259,7 @@ public class MapsActivity extends SherlockActivity {
 	}
 
 	protected MapPosition getInitialPosition() {
+		//TODO
 		return new MapPosition(new LatLong(45.27880, 11.68420), (byte) 15);
 	}
 
