@@ -29,8 +29,6 @@ import com.lorenzobraghetto.compasslibrary.Units;
 
 public class CompassActivity extends SherlockActivity {
 
-	private static final int COORDINATES_OFFSET = 10;
-
 	protected TextView navType;
 	protected TextView navAccuracy;
 	protected TextView navSatellites;
@@ -183,8 +181,12 @@ public class CompassActivity extends SherlockActivity {
 		}
 
 		cacheHeading = geo.getCoords().bearingTo(dstCoords);
-		distanceView.setText(Units.getDistanceFromKilometers(geo.getCoords().distanceTo(dstCoords)));
+		float distance = geo.getCoords().distanceTo(dstCoords);
+		distanceView.setText(Units.getDistanceFromKilometers(distance));
 		headingView.setText(Math.round(cacheHeading) + "°");
+
+		if (distance * 1000 < MapsActivity.MINIMUM_DISTANCE_TO_TRIGGER)
+			finish();
 	}
 
 	private GeoDirHandler geoDirHandler = new GeoDirHandler() {

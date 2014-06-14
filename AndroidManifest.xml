@@ -14,6 +14,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.NFC" />
 
     <application
         android:name="com.lorenzobraghetto.cacciaaltesoro.CacciaAlTesoroApplication"
@@ -33,9 +34,20 @@
         </activity>
         <activity
             android:name="com.lorenzobraghetto.cacciaaltesoro.MapsActivity"
-            android:theme="@style/Theme.Sherlock.Light" />
+            android:theme="@style/Theme.Sherlock.Light" >
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
         <activity
             android:name="com.lorenzobraghetto.cacciaaltesoro.CompassActivity"
+            android:theme="@style/Theme.Sherlock.Light" />
+        <activity
+            android:name="com.lorenzobraghetto.cacciaaltesoro.EndActivity"
             android:theme="@style/Theme.Sherlock.Light" />
     </application>
 

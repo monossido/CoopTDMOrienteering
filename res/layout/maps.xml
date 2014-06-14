@@ -9,12 +9,23 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <ImageView
+        android:id="@+id/btn_myl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/btn_myl" />
+
     <ScrollView
         android:id="@+id/hint_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="10dp"
+        android:layout_margin="7dp"
         android:background="#D8C0C0C0"
+        android:padding="3dp"
         android:visibility="gone" >
 
         <RelativeLayout

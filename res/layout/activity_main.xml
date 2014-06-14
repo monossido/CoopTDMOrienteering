@@ -45,6 +45,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:layout_gravity="center_horizontal"
+                android:layout_marginTop="20dp"
                 android:layout_weight="0.2"
                 android:background="@drawable/tasto_inizio_drawable"
                 android:text="@string/inizia"

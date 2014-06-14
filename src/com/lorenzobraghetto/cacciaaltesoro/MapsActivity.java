@@ -1,6 +1,7 @@
 package com.lorenzobraghetto.cacciaaltesoro;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -11,19 +12,23 @@ import org.mapsforge.core.model.LatLong;
 import org.mapsforge.core.model.MapPosition;
 import org.mapsforge.map.android.AndroidPreferences;
 import org.mapsforge.map.android.graphics.AndroidGraphicFactory;
-import org.mapsforge.map.android.layer.MyLocationOverlay;
 import org.mapsforge.map.android.view.MapView;
 import org.mapsforge.map.layer.Layer;
 import org.mapsforge.map.layer.LayerManager;
 import org.mapsforge.map.layer.cache.TileCache;
 import org.mapsforge.map.layer.download.TileDownloadLayer;
 import org.mapsforge.map.layer.download.tilesource.OpenStreetMapMapnik;
-import org.mapsforge.map.layer.overlay.FixedPixelCircle;
 import org.mapsforge.map.layer.overlay.Marker;
 import org.mapsforge.map.model.MapViewPosition;
 import org.mapsforge.map.model.common.PreferencesFacade;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
@@ -31,21 +36,33 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
+import android.nfc.tech.NfcF;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.Time;
+import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.lorenzobraghetto.compasslibrary.Geopoint;
+import com.lorenzobraghetto.utils.MyLocationOverlay;
 
 public class MapsActivity extends SherlockActivity {
 
@@ -59,20 +76,34 @@ public class MapsActivity extends SherlockActivity {
 	private ScrollView hint_overlay;
 	private TextView hint;
 	private EditText codeEditText;
-	private static final double MINIMUM_DISTANCE_TO_TRIGGER = 50;
+	public static final double MINIMUM_DISTANCE_TO_TRIGGER = 20;
 	private int i = 0;
 	private LayerManager layerManager;
 	private LocationManager locationManager;
 	private LocationListener locationListener;
 	private GeoPoints currentPoint;
 	protected Location currentLocation;
-	private FixedPixelCircle tapableCircle;
+	private Marker marker;
+	private NfcAdapter mNfcAdapter;
+	private PendingIntent mPendingIntent;
+	private IntentFilter[] mIntentFilters;
+	private String[][] mNFCTechLists;
+	private boolean doubleBackToExitPressedOnce;
+	private String user;
+	private ImageView btn_myl;
+	private MapViewPosition mapViewPosition;
+	private String tempo;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.maps);
 
+		Bundle extra = getIntent().getExtras();
+		if (extra != null)
+			user = extra.getString("user");
+		else
+			user = "";
 		SharedPreferences sharedPreferences = this.getSharedPreferences(getPersistableId(), MODE_PRIVATE);
 		this.preferencesFacade = new AndroidPreferences(sharedPreferences);
 
@@ -100,11 +131,88 @@ public class MapsActivity extends SherlockActivity {
 			}
 
 			public void onProviderDisabled(String provider) {
-				//TODO
+				if (provider.equals(LocationManager.GPS_PROVIDER))
+					locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+				else if (provider.equals(LocationManager.NETWORK_PROVIDER)) {
+					AlertDialog.Builder builder = new AlertDialog.Builder(MapsActivity.this);
+
+					builder.setMessage(R.string.dialog_message)
+							.setTitle(R.string.dialog_title).setPositiveButton("OK", null);
+
+					builder.create().show();
+				}
 			}
 		};
 
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+
+		btn_myl.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				if (currentLocation != null)
+					mapViewPosition.animateTo(new LatLong(currentLocation.getLatitude(),
+							currentLocation.getLongitude()));
+			}
+		});
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1)
+			setNfc();
+	}
+
+	@TargetApi(Build.VERSION_CODES.GINGERBREAD_MR1)
+	private void setNfc() {
+		mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+
+		if (mNfcAdapter != null) {
+			// create an intent with tag data and deliver to this activity
+			mPendingIntent = PendingIntent.getActivity(this, 0,
+					new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+
+			// set an intent filter for all MIME data
+			IntentFilter ndefIntent = new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED);
+			try {
+				ndefIntent.addDataType("*/*");
+				mIntentFilters = new IntentFilter[] { ndefIntent };
+			} catch (Exception e) {
+				Log.e("TagDispatch", e.toString());
+			}
+
+			mNFCTechLists = new String[][] { new String[] { NfcF.class.getName() } };
+		}
+	}
+
+	@TargetApi(Build.VERSION_CODES.GINGERBREAD_MR1)
+	@Override
+	public void onNewIntent(Intent intent) {
+		String s = "";
+
+		// parse through all NDEF messages and their records and pick text type only
+		Parcelable[] data = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+		if (data != null) {
+			try {
+				for (int i = 0; i < data.length; i++) {
+					NdefRecord[] recs = ((NdefMessage) data[i]).getRecords();
+					for (int j = 0; j < recs.length; j++) {
+						if (recs[j].getTnf() == NdefRecord.TNF_WELL_KNOWN &&
+								Arrays.equals(recs[j].getType(), NdefRecord.RTD_TEXT)) {
+							byte[] payload = recs[j].getPayload();
+							String textEncoding = ((payload[0] & 0200) == 0) ? "UTF-8" : "UTF-16";
+							int langCodeLen = payload[0] & 0077;
+
+							s += new String(payload, langCodeLen + 1, payload.length - langCodeLen - 1,
+									textEncoding);
+						}
+					}
+				}
+			} catch (Exception e) {
+				Log.e("TagDispatch", e.toString());
+			}
+		}
+		if (s.equalsIgnoreCase(currentPoint.getCode())) {
+			pointFound();
+			codeEditText.setText("");
+		}
 	}
 
 	@Override
@@ -113,6 +221,7 @@ public class MapsActivity extends SherlockActivity {
 		this.mapView.destroy();
 	}
 
+	@SuppressLint("NewApi")
 	@Override
 	protected void onPause() {
 		super.onPause();
@@ -122,8 +231,12 @@ public class MapsActivity extends SherlockActivity {
 			this.downloadLayer.onPause();
 		myLocationOverlay.disableMyLocation();
 		locationManager.removeUpdates(locationListener);
+
+		if (mNfcAdapter != null)
+			mNfcAdapter.disableForegroundDispatch(this);
 	}
 
+	@SuppressLint("NewApi")
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -131,6 +244,9 @@ public class MapsActivity extends SherlockActivity {
 			this.downloadLayer.onResume();
 		myLocationOverlay.enableMyLocation(false);
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+
+		if (mNfcAdapter != null)
+			mNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mIntentFilters, mNFCTechLists);
 	}
 
 	@Override
@@ -151,11 +267,30 @@ public class MapsActivity extends SherlockActivity {
 		super.onMenuItemSelected(featureId, item);
 		switch (item.getItemId()) {
 		case R.id.bussola:
-			CompassActivity.startActivity(this, "asd", "asdlol", new Geopoint(currentPoint.getLocation()), null, "info");
+			CompassActivity.startActivity(this, "asd", "asdlol", new Geopoint(currentPoint.getLocation()), null, currentPoint.getName());
 			break;
 		}
 
 		return true;
+	}
+
+	@Override
+	public void onBackPressed() {
+		if (doubleBackToExitPressedOnce) {
+			super.onBackPressed();
+			return;
+		}
+
+		doubleBackToExitPressedOnce = true;
+		Toast.makeText(this, R.string.on_back_pressed, Toast.LENGTH_SHORT).show();
+
+		new Handler().postDelayed(new Runnable() {
+
+			@Override
+			public void run() {
+				doubleBackToExitPressedOnce = false;
+			}
+		}, 2000);
 	}
 
 	private boolean isNetworkAvailable() {
@@ -182,7 +317,7 @@ public class MapsActivity extends SherlockActivity {
 		// create the overlay and tell it to follow the location
 		myLocationOverlay = new MyLocationOverlay(this,
 				mapViewPosition, bitmap, Utils.createPaint(AndroidGraphicFactory.INSTANCE.createColor(90, 15, 20, 25), 0,
-						Style.FILL), null);
+						Style.FILL), null, user);
 		myLocationOverlay.setSnapToLocationEnabled(false);
 
 		layerManager.getLayers().add(this.myLocationOverlay);
@@ -192,20 +327,22 @@ public class MapsActivity extends SherlockActivity {
 	 * initializes the map view, here from source
 	 */
 	protected void init() {
-		this.mapView = (MapView) findViewById(R.id.mapview);
+		mapView = (MapView) findViewById(R.id.mapview);
+		btn_myl = (ImageView) findViewById(R.id.btn_myl);
 		hint_overlay = (ScrollView) findViewById(R.id.hint_overlay);
 		hint = (TextView) findViewById(R.id.hint);
 		codeEditText = (EditText) findViewById(R.id.code);
 
-		initializeMapView(this.mapView, this.preferencesFacade);
+		initializeMapView(mapView, preferencesFacade);
 
-		this.tileCache = createTileCache();
+		tileCache = createTileCache();
 
 		layerManager = mapView.getLayerManager();
 
-		MapViewPosition mapViewPosition = this.initializePosition(this.mapView.getModel().mapViewPosition);
+		mapViewPosition = mapView.getModel().mapViewPosition;
+		mapViewPosition.setMapPosition(getInitialPosition());
 
-		addLayers(this.tileCache, mapViewPosition);
+		addLayers(tileCache, mapViewPosition);
 
 		showNextPoint();
 	}
@@ -213,12 +350,20 @@ public class MapsActivity extends SherlockActivity {
 	private void showNextPoint() {
 		if (i < listGeoPoints.size()) {
 			currentPoint = listGeoPoints.get(i);
-			Marker marker1 = Utils.createTappableMarker(this,
+
+			if (marker != null)
+				layerManager.getLayers().remove(marker);
+
+			marker = Utils.createTappableMarker(this,
 					R.drawable.ic_transit_notice_information, currentPoint.getLatLon());
-			layerManager.getLayers().add(marker1);
+			layerManager.getLayers().add(marker);
 			i++;
+		} else {
+			Intent end = new Intent(this, EndActivity.class);
+			end.putExtra("user", user);
+			end.putExtra("tempo", tempo);
+			startActivity(end);
 		}
-		//else TODO
 	}
 
 	protected void drawHint(final GeoPoints geoPoint) {
@@ -228,8 +373,10 @@ public class MapsActivity extends SherlockActivity {
 
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				if (s.toString().equalsIgnoreCase(geoPoint.getCode()))
+				if (s.toString().equalsIgnoreCase(geoPoint.getCode())) {
 					pointFound();
+					codeEditText.setText("");
+				}
 			}
 
 			@Override
@@ -245,7 +392,6 @@ public class MapsActivity extends SherlockActivity {
 	}
 
 	protected void pointFound() {
-		//TODO
 		hint_overlay.setVisibility(View.GONE);
 		InputMethodManager mgr = (InputMethodManager)
 				getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -259,8 +405,7 @@ public class MapsActivity extends SherlockActivity {
 	}
 
 	protected MapPosition getInitialPosition() {
-		//TODO
-		return new MapPosition(new LatLong(45.27880, 11.68420), (byte) 15);
+		return new MapPosition(new LatLong(45.276956, 11.679168), (byte) 17);
 	}
 
 	/**
@@ -296,27 +441,9 @@ public class MapsActivity extends SherlockActivity {
 		mapView.getMapScaleBar().setVisible(true);
 	}
 
-	/**
-	 * initializes the map view position
-	 * 
-	 * @param mapViewPosition
-	 *            the map view position to be set
-	 * @return the mapviewposition set
-	 */
-	protected MapViewPosition initializePosition(MapViewPosition mapViewPosition) {
-		LatLong center = mapViewPosition.getCenter();
-
-		//if (center.equals(new LatLong(0, 0))) {
-		mapViewPosition.setMapPosition(this.getInitialPosition());
-		//}
-		return mapViewPosition;
-	}
-
 	protected GeoPoints isNearTo(Location location) {
-		for (GeoPoints geoPoint : listGeoPoints) {
-			if (calculationDistance(location, geoPoint.getLat(), geoPoint.getLon()) < MINIMUM_DISTANCE_TO_TRIGGER)
-				return geoPoint;
-		}
+		if (calculationDistance(location, currentPoint.getLat(), currentPoint.getLon()) < MINIMUM_DISTANCE_TO_TRIGGER)
+			return currentPoint;
 		return null;
 	}
 
@@ -342,7 +469,14 @@ public class MapsActivity extends SherlockActivity {
 
 							@Override
 							public void run() {
-								timerText.setText(secondsToString(i));
+								//if (i == 3) {
+								//	Intent end = new Intent(MapsActivity.this, EndActivity.class);
+								//	end.putExtra("user", user);
+								//	end.putExtra("tempo", tempo);
+								//	startActivity(end);
+								//}
+								tempo = secondsToString(i);
+								timerText.setText(tempo);
 							}
 						});
 					}

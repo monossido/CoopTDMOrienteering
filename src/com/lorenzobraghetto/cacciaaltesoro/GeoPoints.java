@@ -11,7 +11,6 @@ public class GeoPoints {
 	private String name;
 	private String hint;
 	private String code;
-	private int position;
 
 	public GeoPoints(double lat, double lon, String name, String code, String hint) {
 		this.lat = lat;
