@@ -1,9 +1,5 @@
 package com.lorenzobraghetto.cooptdmorientiringvillabea;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import rx.Subscription;
 import android.content.Context;
 import android.content.Intent;
@@ -22,7 +18,6 @@ import com.lorenzobraghetto.compasslibrary.DirectionProvider;
 import com.lorenzobraghetto.compasslibrary.GeoDirHandler;
 import com.lorenzobraghetto.compasslibrary.Geopoint;
 import com.lorenzobraghetto.compasslibrary.IGeoData;
-import com.lorenzobraghetto.compasslibrary.IWaypoint;
 import com.lorenzobraghetto.compasslibrary.Units;
 
 public class CompassActivity extends SherlockActivity {
@@ -39,7 +34,6 @@ public class CompassActivity extends SherlockActivity {
 
 	private static final String EXTRAS_COORDS = "coords";
 	private static final String EXTRAS_CACHE_INFO = "cacheinfo";
-	private static final List<IWaypoint> coordinates = new ArrayList<IWaypoint>();
 	public static final int UPDATE_GEODIR = 1 << 3;
 
 	/**
@@ -211,17 +205,8 @@ public class CompassActivity extends SherlockActivity {
 		}
 	}
 
-	public static void startActivity(final Context context, final Geopoint coords, final Collection<IWaypoint> coordinatesWithType,
+	public static void startActivity(final Context context, final Geopoint coords,
 			final String info) {
-		coordinates.clear();
-		if (coordinatesWithType != null) {
-			for (IWaypoint coordinate : coordinatesWithType) {
-				if (coordinate != null) {
-					coordinates.add(coordinate);
-				}
-			}
-		}
-
 		final Intent navigateIntent = new Intent(context, CompassActivity.class);
 		navigateIntent.putExtra(EXTRAS_COORDS, coords);
 		navigateIntent.putExtra(EXTRAS_CACHE_INFO, info);

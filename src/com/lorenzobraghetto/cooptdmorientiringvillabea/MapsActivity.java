@@ -272,7 +272,7 @@ public class MapsActivity extends SherlockActivity {
 		super.onMenuItemSelected(featureId, item);
 		switch (item.getItemId()) {
 		case R.id.bussola:
-			CompassActivity.startActivity(this, new Geopoint(currentPoint.getLocation()), null, currentPoint.getName());
+			CompassActivity.startActivity(this, new Geopoint(currentPoint.getLocation()), currentPoint.getName());
 			break;
 		case R.id.screen_on:
 			if (!item.isChecked()) {
