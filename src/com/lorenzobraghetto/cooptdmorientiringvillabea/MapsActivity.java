@@ -1,4 +1,4 @@
-package com.lorenzobraghetto.cacciaaltesoro;
+package com.lorenzobraghetto.cooptdmorientiringvillabea;
 
 import java.io.File;
 import java.util.Arrays;
@@ -10,6 +10,7 @@ import org.mapsforge.core.graphics.Bitmap;
 import org.mapsforge.core.graphics.Style;
 import org.mapsforge.core.model.LatLong;
 import org.mapsforge.core.model.MapPosition;
+import org.mapsforge.core.model.Point;
 import org.mapsforge.map.android.AndroidPreferences;
 import org.mapsforge.map.android.graphics.AndroidGraphicFactory;
 import org.mapsforge.map.android.view.MapView;
@@ -42,7 +43,6 @@ import android.nfc.NfcAdapter;
 import android.nfc.tech.NfcF;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Parcelable;
 import android.text.Editable;
@@ -51,6 +51,7 @@ import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -93,6 +94,9 @@ public class MapsActivity extends SherlockActivity {
 	private ImageView btn_myl;
 	private MapViewPosition mapViewPosition;
 	private String tempo;
+	private TextView hint_titolo;
+	private boolean hintVisible = false;
+	protected boolean toastNearShowed;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -108,7 +112,7 @@ public class MapsActivity extends SherlockActivity {
 		this.preferencesFacade = new AndroidPreferences(sharedPreferences);
 
 		MyGeoPoints mgp = new MyGeoPoints();
-		listGeoPoints = mgp.getGeoPoints();
+		listGeoPoints = mgp.getGeoPointsLevel((OrientiringApplication) getApplication());
 
 		init();
 
@@ -118,8 +122,9 @@ public class MapsActivity extends SherlockActivity {
 			public void onLocationChanged(Location location) {
 				currentLocation = location;
 				GeoPoints point = isNearTo(location);
-				if (point != null) {
-					drawHint(point);
+				if (point != null && !toastNearShowed) {
+					toastNearShowed = true;
+					Toast.makeText(MapsActivity.this, R.string.testo_vicino_alpunto, Toast.LENGTH_LONG).show();
 				}
 
 			}
@@ -227,7 +232,7 @@ public class MapsActivity extends SherlockActivity {
 		super.onPause();
 		//this.mapView.getModel().save(this.preferencesFacade);
 		//this.preferencesFacade.save();
-		if (isNetworkAvailable())
+		if (downloadLayer.isVisible())
 			this.downloadLayer.onPause();
 		myLocationOverlay.disableMyLocation();
 		locationManager.removeUpdates(locationListener);
@@ -267,7 +272,16 @@ public class MapsActivity extends SherlockActivity {
 		super.onMenuItemSelected(featureId, item);
 		switch (item.getItemId()) {
 		case R.id.bussola:
-			CompassActivity.startActivity(this, "asd", "asdlol", new Geopoint(currentPoint.getLocation()), null, currentPoint.getName());
+			CompassActivity.startActivity(this, new Geopoint(currentPoint.getLocation()), null, currentPoint.getName());
+			break;
+		case R.id.screen_on:
+			if (!item.isChecked()) {
+				getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+				item.setChecked(true);
+			} else {
+				getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+				item.setChecked(false);
+			}
 			break;
 		}
 
@@ -276,21 +290,25 @@ public class MapsActivity extends SherlockActivity {
 
 	@Override
 	public void onBackPressed() {
-		if (doubleBackToExitPressedOnce) {
-			super.onBackPressed();
-			return;
-		}
-
-		doubleBackToExitPressedOnce = true;
-		Toast.makeText(this, R.string.on_back_pressed, Toast.LENGTH_SHORT).show();
-
-		new Handler().postDelayed(new Runnable() {
-
-			@Override
-			public void run() {
-				doubleBackToExitPressedOnce = false;
+		if (!hintVisible) {
+			if (doubleBackToExitPressedOnce) {
+				super.onBackPressed();
+				return;
 			}
-		}, 2000);
+
+			doubleBackToExitPressedOnce = true;
+			Toast.makeText(this, R.string.on_back_pressed, Toast.LENGTH_SHORT).show();
+
+			new Handler().postDelayed(new Runnable() {
+
+				@Override
+				public void run() {
+					doubleBackToExitPressedOnce = false;
+				}
+			}, 2000);
+		} else {
+			hideHint();
+		}
 	}
 
 	private boolean isNetworkAvailable() {
@@ -330,6 +348,7 @@ public class MapsActivity extends SherlockActivity {
 		mapView = (MapView) findViewById(R.id.mapview);
 		btn_myl = (ImageView) findViewById(R.id.btn_myl);
 		hint_overlay = (ScrollView) findViewById(R.id.hint_overlay);
+		hint_titolo = (TextView) findViewById(R.id.hint_titolo);
 		hint = (TextView) findViewById(R.id.hint);
 		codeEditText = (EditText) findViewById(R.id.code);
 
@@ -354,50 +373,73 @@ public class MapsActivity extends SherlockActivity {
 			if (marker != null)
 				layerManager.getLayers().remove(marker);
 
-			marker = Utils.createTappableMarker(this,
+			Marker markerTemp = Utils.createTappableMarker(this,
 					R.drawable.ic_transit_notice_information, currentPoint.getLatLon());
+			marker = new Marker(markerTemp.getLatLong(), markerTemp.getBitmap(), markerTemp.getHorizontalOffset(), markerTemp.getVerticalOffset()) {
+
+				@Override
+				public boolean onTap(LatLong tapLatLong, Point layerXY, Point tapXY) {
+					if (this.contains(layerXY, tapXY))
+						drawHint();
+					return super.onTap(tapLatLong, layerXY, tapXY);
+				}
+			};
+
 			layerManager.getLayers().add(marker);
 			i++;
 		} else {
 			Intent end = new Intent(this, EndActivity.class);
 			end.putExtra("user", user);
 			end.putExtra("tempo", tempo);
+			finish();
 			startActivity(end);
 		}
 	}
 
-	protected void drawHint(final GeoPoints geoPoint) {
+	private TextWatcher codeWatcher = new TextWatcher() {
+
+		@Override
+		public void onTextChanged(CharSequence s, int start, int before, int count) {
+		}
+
+		@Override
+		public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+		}
+
+		@Override
+		public void afterTextChanged(Editable s) {
+			if (s.toString().equalsIgnoreCase(currentPoint.getCode())) {
+				pointFound();
+				codeEditText.setText("");
+			}
+		}
+	};
+
+	protected void drawHint() {
+		hintVisible = true;
 		hint_overlay.setVisibility(View.VISIBLE);
-		hint.setText(geoPoint.getHint());
-		codeEditText.addTextChangedListener(new TextWatcher() {
+		hint_titolo.setText(currentPoint.getName());
+		hint.setText(currentPoint.getHint());
+		codeEditText.addTextChangedListener(codeWatcher);
+	}
 
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				if (s.toString().equalsIgnoreCase(geoPoint.getCode())) {
-					pointFound();
-					codeEditText.setText("");
-				}
-			}
-
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void afterTextChanged(Editable s) {
-			}
-		});
+	private void hideHint() {
+		codeEditText.removeTextChangedListener(codeWatcher);
+		hint_overlay.setVisibility(View.GONE);
+		hintVisible = false;
 	}
 
 	protected void pointFound() {
-		hint_overlay.setVisibility(View.GONE);
+		if (toastNearShowed)
+			toastNearShowed = false;
+
+		hideHint();
 		InputMethodManager mgr = (InputMethodManager)
 				getSystemService(Context.INPUT_METHOD_SERVICE);
 
 		mgr.hideSoftInputFromWindow(mapView.getWindowToken(), 0);
 		showNextPoint();
+		Toast.makeText(this, R.string.codice_esatto, Toast.LENGTH_LONG).show();
 	}
 
 	private TileCache createTileCache() {
@@ -412,7 +454,7 @@ public class MapsActivity extends SherlockActivity {
 	 * @return a map file
 	 */
 	protected File getMapFile() {
-		return new File(Environment.getExternalStorageDirectory(), this.getMapFileName());
+		return new File(getExternalFilesDir(null), this.getMapFileName());
 	}
 
 	/**
@@ -469,12 +511,6 @@ public class MapsActivity extends SherlockActivity {
 
 							@Override
 							public void run() {
-								//if (i == 3) {
-								//	Intent end = new Intent(MapsActivity.this, EndActivity.class);
-								//	end.putExtra("user", user);
-								//	end.putExtra("tempo", tempo);
-								//	startActivity(end);
-								//}
 								tempo = secondsToString(i);
 								timerText.setText(tempo);
 							}

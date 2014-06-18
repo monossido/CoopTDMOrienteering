@@ -5,7 +5,7 @@
     android:background="@drawable/sfondo"
     android:orientation="vertical" >
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:gravity="top" >
@@ -23,12 +23,12 @@
                 android:id="@+id/question"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
+                android:layout_marginBottom="10dp"
                 android:gravity="center_horizontal"
                 android:text="Welcome"
                 android:textAppearance="@android:style/TextAppearance.Large"
                 android:textColor="#fff"
-                android:textSize="50sp"
+                android:textSize="40sp"
                 android:textStyle="italic" >
             </com.lorenzobraghetto.utils.AutoResizeTextView>
 
@@ -45,7 +45,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="10dp"
                 android:layout_weight="0.2"
                 android:background="@drawable/tasto_inizio_drawable"
                 android:text="@string/inizia"
@@ -62,7 +62,21 @@
                 android:text="@string/about"
                 android:textSize="25sp"
                 android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_margin="5dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_weight="0.5"
+                android:background="#ccffffff"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="@string/testo_iniziale"
+                android:textStyle="bold" />
         </LinearLayout>
-    </LinearLayout>
+    </ScrollView>
 
 </LinearLayout>

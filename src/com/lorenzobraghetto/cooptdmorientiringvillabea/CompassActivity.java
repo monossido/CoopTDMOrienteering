@@ -1,25 +1,23 @@
-package com.lorenzobraghetto.cacciaaltesoro;
+package com.lorenzobraghetto.cooptdmorientiringvillabea;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-
+import rx.Subscription;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
-import android.media.AudioManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.lorenzobraghetto.compasslibrary.CompassLibraryApplication;
+import com.lorenzobraghetto.compasslibrary.CompassView;
 import com.lorenzobraghetto.compasslibrary.DirectionProvider;
 import com.lorenzobraghetto.compasslibrary.GeoDirHandler;
 import com.lorenzobraghetto.compasslibrary.Geopoint;
@@ -40,8 +38,6 @@ public class CompassActivity extends SherlockActivity {
 	protected TextView cacheInfoView;
 
 	private static final String EXTRAS_COORDS = "coords";
-	private static final String EXTRAS_NAME = "name";
-	private static final String EXTRAS_GEOCODE = "geocode";
 	private static final String EXTRAS_CACHE_INFO = "cacheinfo";
 	private static final List<IWaypoint> coordinates = new ArrayList<IWaypoint>();
 	public static final int UPDATE_GEODIR = 1 << 3;
@@ -53,11 +49,11 @@ public class CompassActivity extends SherlockActivity {
 	//Geocache cache = null;
 	private Geopoint dstCoords = null;
 	private float cacheHeading = 0;
-	private String title = null;
 	private String info = null;
-	private boolean hasMagneticFieldSensor;
 
 	private Resources res;
+	private boolean toasted = false;
+	private Subscription geoDirHandlerSubSCription;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -75,32 +71,11 @@ public class CompassActivity extends SherlockActivity {
 		destinationTextView = (TextView) findViewById(R.id.destination);
 		cacheInfoView = (TextView) findViewById(R.id.cacheinfo);
 
-		final SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-		hasMagneticFieldSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) != null;
-		//if (!hasMagneticFieldSensor) {
-		//	Settings.setUseCompass(false);
-		//}
-
 		// get parameters
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
-			final String geocode = extras.getString(EXTRAS_GEOCODE);
-			if (!geocode.isEmpty()) {
-				//cache = DataStore.loadCache(geocode, LoadFlags.LOAD_CACHE_OR_DB);
-				//cache = new Geocache(); //TODO
-			}
-			title = geocode;
-			final String name = extras.getString(EXTRAS_NAME);
 			dstCoords = extras.getParcelable(EXTRAS_COORDS);
 			info = extras.getString(EXTRAS_CACHE_INFO);
-
-			if (!name.isEmpty()) {
-				if (!title.isEmpty()) {
-					title += ": " + name;
-				} else {
-					title = name;
-				}
-			}
 		} else {
 			//			Intent pointIntent = new Intent(this, NavigateAnyPointActivity.class);
 			//		startActivity(pointIntent);
@@ -108,27 +83,24 @@ public class CompassActivity extends SherlockActivity {
 			//			finish();
 			//		return;
 		}
+		res = getResources();
 
 		// set header
 		setTitle();
 		setDestCoords();
 		setCacheInfo();
-
-		// make sure we can control the TTS volume
-		setVolumeControlStream(AudioManager.STREAM_MUSIC);
-
-		res = getResources();
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-		geoDirHandler.start(UPDATE_GEODIR, this, getWindowManager());
+		geoDirHandlerSubSCription = geoDirHandler.start(UPDATE_GEODIR, this, getWindowManager());
 	}
 
 	@Override
 	public void onDestroy() {
 		compassView.destroyDrawingCache();
+		geoDirHandlerSubSCription.unsubscribe();
 		super.onDestroy();
 	}
 
@@ -151,11 +123,7 @@ public class CompassActivity extends SherlockActivity {
 	}
 
 	private void setTitle() {
-		if (StringUtils.isNotBlank(title)) {
-			setTitle(title);
-		} else {
-			setTitle(res.getString(R.string.navigation));
-		}
+		setTitle(res.getString(R.string.navigation));
 	}
 
 	private void setDestCoords() {
@@ -185,8 +153,22 @@ public class CompassActivity extends SherlockActivity {
 		distanceView.setText(Units.getDistanceFromKilometers(distance));
 		headingView.setText(Math.round(cacheHeading) + "°");
 
-		if (distance * 1000 < MapsActivity.MINIMUM_DISTANCE_TO_TRIGGER)
+		int level = ((OrientiringApplication) getApplication()).getLevel();
+		if (distance * 1000 < MapsActivity.MINIMUM_DISTANCE_TO_TRIGGER) {
+			if (!toasted) {
+				toasted = true;
+				if (level == OrientiringApplication.LEVEL_EASY)
+					Toast.makeText(this, R.string.compass_acitivty_nerotopoint_leveleasy, Toast.LENGTH_LONG).show();
+				else if (level == OrientiringApplication.LEVEL_DIFFICULT) {
+					Toast.makeText(this, R.string.compass_acitivty_nerotopoint_leveleasy, Toast.LENGTH_LONG).show();
+					finish();
+				}
+			}
+		}
+		if (level == OrientiringApplication.LEVEL_EXTREME) {
+			Toast.makeText(this, R.string.compass_acitivty_nerotopoint_levelextreme, Toast.LENGTH_LONG).show();
 			finish();
+		}
 	}
 
 	private GeoDirHandler geoDirHandler = new GeoDirHandler() {
@@ -218,7 +200,7 @@ public class CompassActivity extends SherlockActivity {
 
 				updateNorthHeading(DirectionProvider.getDirectionNow(dir, getWindowManager()));
 			} catch (RuntimeException e) {
-				Log.w("CACCIA", "Failed to LocationUpdater location.");
+				Log.w("CompassLibrary", "Failed to LocationUpdater location.");
 			}
 		}
 	};
@@ -229,7 +211,7 @@ public class CompassActivity extends SherlockActivity {
 		}
 	}
 
-	public static void startActivity(final Context context, final String geocode, final String displayedName, final Geopoint coords, final Collection<IWaypoint> coordinatesWithType,
+	public static void startActivity(final Context context, final Geopoint coords, final Collection<IWaypoint> coordinatesWithType,
 			final String info) {
 		coordinates.clear();
 		if (coordinatesWithType != null) {
@@ -242,10 +224,6 @@ public class CompassActivity extends SherlockActivity {
 
 		final Intent navigateIntent = new Intent(context, CompassActivity.class);
 		navigateIntent.putExtra(EXTRAS_COORDS, coords);
-		navigateIntent.putExtra(EXTRAS_GEOCODE, geocode);
-		if (null != displayedName) {
-			navigateIntent.putExtra(EXTRAS_NAME, displayedName);
-		}
 		navigateIntent.putExtra(EXTRAS_CACHE_INFO, info);
 		context.startActivity(navigateIntent);
 	}

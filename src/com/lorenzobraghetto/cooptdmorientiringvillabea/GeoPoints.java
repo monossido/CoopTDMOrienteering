@@ -1,4 +1,4 @@
-package com.lorenzobraghetto.cacciaaltesoro;
+package com.lorenzobraghetto.cooptdmorientiringvillabea;
 
 import org.mapsforge.core.model.LatLong;
 
