@@ -9,6 +9,7 @@ Licenza GPL - (see LICENSE)
 
 
 Software Open Source utilizzato:
+- [mapsforge](https://code.google.com/p/mapsforge/)
 - [ActionBarSherlock](https://github.com/JakeWharton/ActionBarSherlock)
 - [CompassLibrary](https://github.com/monossido/CompassLibrary)
 
