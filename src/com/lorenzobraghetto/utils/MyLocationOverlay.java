@@ -151,10 +151,11 @@ public class MyLocationOverlay extends Layer implements LocationListener {
 
 			Paint paint = GRAPHIC_FACTORY.createPaint();
 			paint.setColor(Color.BLACK);
-			paint.setTextSize(40);
+			Resources r = context.getResources();
+			float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 25, r.getDisplayMetrics());
+			paint.setTextSize(px);
 			paint.setTextAlign(Align.CENTER);
 			paint.setTypeface(FontFamily.DEFAULT, FontStyle.BOLD);
-			Resources r = context.getResources();
 			float pxY = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 45, r.getDisplayMetrics());
 			canvas.drawText(userText, pixelX, pixelY - (int) pxY, paint);
 		}

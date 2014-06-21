@@ -1,4 +1,4 @@
-package com.lorenzobraghetto.cooptdmorientiringvillabea;
+package com.lorenzobraghetto.cooptdmorienteeringvillabea;
 
 import android.os.Bundle;
 import android.widget.TextView;

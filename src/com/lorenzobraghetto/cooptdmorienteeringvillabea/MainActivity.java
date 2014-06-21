@@ -1,4 +1,4 @@
-package com.lorenzobraghetto.cooptdmorientiringvillabea;
+package com.lorenzobraghetto.cooptdmorienteeringvillabea;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -34,6 +34,8 @@ public class MainActivity extends SherlockActivity {
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
 				if (s.length() > 0)
 					ok.setEnabled(true);
+				else
+					ok.setEnabled(false);
 			}
 
 			@Override

@@ -1,4 +1,4 @@
-package com.lorenzobraghetto.cooptdmorientiringvillabea;
+package com.lorenzobraghetto.cooptdmorienteeringvillabea;
 
 import java.io.File;
 import java.io.FileOutputStream;

@@ -1,4 +1,4 @@
-package com.lorenzobraghetto.cooptdmorientiringvillabea;
+package com.lorenzobraghetto.cooptdmorienteeringvillabea;
 
 import org.mapsforge.core.model.LatLong;
 

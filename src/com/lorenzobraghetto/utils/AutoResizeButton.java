@@ -7,7 +7,7 @@ import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.widget.Button;
 
-import com.lorenzobraghetto.cooptdmorientiringvillabea.R;
+import com.lorenzobraghetto.cooptdmorienteeringvillabea.R;
 
 /**
  * A custom Text View that lowers the text size when the text is to big for the

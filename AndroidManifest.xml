@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.lorenzobraghetto.cooptdmorientiringvillabea"
+    package="com.lorenzobraghetto.cooptdmorienteeringvillabea"
     android:versionCode="1"
     android:versionName="0.1" >
 
@@ -17,14 +17,14 @@
     <uses-permission android:name="android.permission.NFC" />
 
     <application
-        android:name="com.lorenzobraghetto.cooptdmorientiringvillabea.OrientiringApplication"
+        android:name="com.lorenzobraghetto.cooptdmorienteeringvillabea.OrientiringApplication"
         android:allowBackup="true"
         android:hardwareAccelerated="false"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/Theme.Sherlock.Light.NoActionBar" >
         <activity
-            android:name="com.lorenzobraghetto.cooptdmorientiringvillabea.MainActivity"
+            android:name="com.lorenzobraghetto.cooptdmorienteeringvillabea.MainActivity"
             android:label="@string/app_name"
             android:windowSoftInputMode="adjustPan" >
             <intent-filter>
@@ -34,15 +34,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.lorenzobraghetto.cooptdmorientiringvillabea.MapsActivity"
+            android:name="com.lorenzobraghetto.cooptdmorienteeringvillabea.MapsActivity"
             android:configChanges="orientation|screenSize"
             android:theme="@style/Theme.Sherlock.Light" >
         </activity>
         <activity
-            android:name="com.lorenzobraghetto.cooptdmorientiringvillabea.CompassActivity"
+            android:name="com.lorenzobraghetto.cooptdmorienteeringvillabea.CompassActivity"
             android:theme="@style/Theme.Sherlock.Light" />
         <activity
-            android:name="com.lorenzobraghetto.cooptdmorientiringvillabea.EndActivity"
+            android:name="com.lorenzobraghetto.cooptdmorienteeringvillabea.EndActivity"
             android:theme="@style/Theme.Sherlock.Light" />
     </application>
 
