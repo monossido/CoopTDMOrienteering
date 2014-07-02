@@ -154,7 +154,7 @@ public class CompassActivity extends SherlockActivity {
 				if (level == OrientiringApplication.LEVEL_EASY)
 					Toast.makeText(this, R.string.compass_acitivty_nerotopoint_leveleasy, Toast.LENGTH_LONG).show();
 				else if (level == OrientiringApplication.LEVEL_DIFFICULT) {
-					Toast.makeText(this, R.string.compass_acitivty_nerotopoint_leveleasy, Toast.LENGTH_LONG).show();
+					Toast.makeText(this, R.string.compass_acitivty_nerotopoint_levelDifficult, Toast.LENGTH_LONG).show();
 					finish();
 				}
 			}
