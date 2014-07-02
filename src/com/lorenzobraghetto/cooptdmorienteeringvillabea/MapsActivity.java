@@ -164,12 +164,6 @@ public class MapsActivity extends SherlockActivity {
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1)
 			setNfc();
-
-		Intent end = new Intent(this, EndActivity.class);
-		end.putExtra("user", user);
-		end.putExtra("tempo", tempo);
-		finish();
-		startActivity(end);
 	}
 
 	@TargetApi(Build.VERSION_CODES.GINGERBREAD_MR1)

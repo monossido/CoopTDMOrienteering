@@ -49,7 +49,7 @@
                 android:layout_weight="0.2"
                 android:background="@drawable/tasto_inizio_drawable"
                 android:text="@string/inizia"
-                android:textSize="25sp"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
             <Button
@@ -60,7 +60,7 @@
                 android:layout_weight="0.2"
                 android:background="@drawable/tasto_inizio_drawable"
                 android:text="@string/info"
-                android:textSize="25sp"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
             <Button
@@ -71,7 +71,7 @@
                 android:layout_weight="0.2"
                 android:background="@drawable/tasto_inizio_drawable"
                 android:text="@string/about"
-                android:textSize="25sp"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
             <TextView
