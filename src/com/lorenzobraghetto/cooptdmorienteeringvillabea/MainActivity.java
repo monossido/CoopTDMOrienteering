@@ -76,7 +76,7 @@ public class MainActivity extends SherlockActivity {
 			public void onClick(View v) {
 				AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 				builder.setTitle(R.string.info)
-						.setMessage(R.string.testo_info);
+						.setMessage(Html.fromHtml(getString(R.string.testo_info)));
 				builder.create().show();
 			}
 		});
