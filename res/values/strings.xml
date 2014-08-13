@@ -32,8 +32,8 @@ Molti dei punti si trovano vicino a degli alberi; per facilitare l\'individuazio
 il gioco sarà possibile cliccare sull’icona dell\'albero che aprirà una chiave di riconoscimento.<br><b>Buona partita!</b>]]>
 </Data></string>
     <string name="testo_About"><Data>
-<![CDATA[ Applicazione sviluppata da <b>Lorenzo Braghetto</b> (lorenzobraghetto.com) per <b>Cooperativa Terra di Mezzo</b><br><br>Licenza GPL - https://github.com/monossido/CoopTDMOrienteering
-        <br><br>Software Open Source utilizzato:<br>-mapsforge<br>-ActionBarSherlock<br>-CompassLibrary<br><br>Grafica creata da <b>Andrea Marson</b><br><br>versione]]>
+<![CDATA[ Applicazione sviluppata da <b>Lorenzo Braghetto</b> (lorenzobraghetto.com) per <b>Cooperativa Terra di Mezzo</b><br><br>Licenza GPL - <a href="https://github.com/monossido/CoopTDMOrienteering">https://github.com/monossido/CoopTDMOrienteering</a>
+        <br><br>Software Open Source utilizzato:<br>- mapsforge<br>- ActionBarSherlock<br>- <a href="https://github.com/monossido/CompassLibrary">CompassLibrary</a><br><br>Grafica creata da <b>Andrea Marson</b><br><br>versione %s]]>
 </Data></string>
     <string name="codice_esatto">Codice esatto, prosegui col prossimo punto</string>
     <string name="compass_acitivty_nerotopoint_leveleasy">Sei vicino al punto che devi trovare, premi indietro per inserire il codice o per tappare l\'NFC</string>

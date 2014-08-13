@@ -1,6 +1,7 @@
 package com.lorenzobraghetto.cooptdmorienteeringvillabea;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockActivity;
 
@@ -93,10 +95,17 @@ public class MainActivity extends SherlockActivity {
 					e.printStackTrace();
 				}
 				String version = pInfo.versionName;
-				AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-				builder.setTitle(R.string.about)
-						.setMessage(Html.fromHtml(getString(R.string.testo_About) + " " + version));
-				builder.create().show();
+				String dialogText = String.format(getString(R.string.testo_About), version);
+
+				Dialog dialog = new Dialog(MainActivity.this);
+				dialog.setContentView(R.layout.custom_dialog);
+				dialog.setTitle(R.string.about);
+
+				// set the custom dialog components - text, image and button
+				TextView text = (TextView) dialog.findViewById(R.id.dialogText);
+				text.setText(Html.fromHtml(dialogText));
+
+				dialog.show();
 			}
 		});
 
