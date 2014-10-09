@@ -35,6 +35,20 @@ public class OrientiringApplication extends Application {
 		return level;
 	}
 
+	public String getLevelString() {
+		String[] difficoltaStringhe = getResources().getStringArray(R.array.difficult_levels);
+		switch (level) {
+		case LEVEL_EASY:
+			return difficoltaStringhe[0];
+		case LEVEL_DIFFICULT:
+			return difficoltaStringhe[1];
+		case LEVEL_EXTREME:
+			return difficoltaStringhe[2];
+		default:
+			return difficoltaStringhe[0];
+		}
+	}
+
 	protected File getMapFile() {
 		return new File(getExternalFilesDir(null), this.getMapFileName());
 	}

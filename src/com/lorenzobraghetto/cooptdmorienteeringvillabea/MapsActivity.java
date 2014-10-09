@@ -38,6 +38,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
@@ -299,6 +300,9 @@ public class MapsActivity extends SherlockActivity {
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		super.onMenuItemSelected(featureId, item);
 		switch (item.getItemId()) {
+		case R.id.guida:
+			startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.divulgando.collieuganei")));
+			break;
 		case R.id.bussola:
 			CompassActivity.startActivity(this, new Geopoint(currentPoint.getLocation()), currentPoint.getName());
 			break;
@@ -419,6 +423,7 @@ public class MapsActivity extends SherlockActivity {
 			Intent end = new Intent(this, EndActivity.class);
 			end.putExtra("user", user);
 			end.putExtra("tempo", tempo);
+			end.putExtra("difficolta", ((OrientiringApplication) getApplication()).getLevel());
 			finish();
 			startActivity(end);
 		}

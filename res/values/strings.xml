@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Orienteering</string>
+    <string name="app_name">Naturorienteering - Villa Beatrice</string>
     <string name="hint_desc">Segui l\'indovinello e trova l\'adesivo NFC con il codice, puoi usare NFC se il tuo telefono lo supporta oppure puoi inserire il codice</string>
     <string name="inizia">Inizia</string>
     <string name="about">About</string>
@@ -12,9 +12,11 @@
     <string name="dialog_nfc_message">Il tuo device support l\'NFC, ma non è attivato, premi OK per aprire le impostazioni</string>
     <string name="complimenti">Complimenti</string>
     <string name="completato_in">Hai completato la caccia al tesoro in</string>
-    <string name="punteggio">Invia il punteggio e visualizza la classifica\n(Coming Soon)</string>
+    <string name="punteggio">Invia il punteggio e visualizza la classifica\n</string>
+    <string name="classifica">Visualizza la classifica\n</string>
     <string name="difficolta">Seleziona livello di difficoltà</string>
     <string name="info">Info sul gioco</string>
+    <string name="no_partite">Non è stata inserita ancora nessuna partita</string>
     <string name="testo_iniziale">Questo gioco consiste nel completare un percorso predefinito, visitando una serie di punti di controllo, con il solo uso della bussola e della cartina topografica, il più velocemente possibile.\nClicca su \"Info\" per le regole del gioco, \"About\" per maggiori informazioni</string>
     <string name="testo_info"><Data>
 <![CDATA[ Questo gioco consiste nel completare un percorso predefinito, visitando una serie di punti di controllo,

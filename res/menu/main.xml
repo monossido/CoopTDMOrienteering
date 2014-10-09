@@ -9,6 +9,11 @@
         android:showAsAction="always"
         android:title="Tempo"/>
     <item
+        android:id="@+id/guida"
+        android:icon="@drawable/broccolo"
+        android:showAsAction="ifRoom|withText"
+        android:title="Guida alle piante"/>
+    <item
         android:id="@+id/bussola"
         android:icon="@drawable/ic_compass"
         android:showAsAction="ifRoom|withText"

@@ -31,9 +31,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:layout_weight="0.8"
+            android:gravity="center"
             android:text="@string/completato_in"
-            android:textSize="20sp"
-            android:textStyle="bold|italic" />
+            android:textSize="22sp" />
 
         <TextView
             android:id="@+id/time"
@@ -45,13 +45,36 @@
             android:textStyle="italic" />
 
         <Button
-            android:id="@+id/punteggio"
+            android:id="@+id/inviaPunteggio"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/tasto_inizio_drawable"
-            android:enabled="false"
+            android:paddingBottom="5dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:paddingTop="20dp"
             android:text="@string/punteggio"
-            android:textSize="16sp" />
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/vediClassifica"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/tasto_inizio_drawable"
+            android:paddingBottom="5dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:paddingTop="20dp"
+            android:text="@string/classifica"
+            android:textSize="18sp" />
+
+        <ProgressBar
+            android:id="@+id/progressBarLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminateOnly="true"
+            android:visibility="gone" />
     </LinearLayout>
 
 </LinearLayout>
