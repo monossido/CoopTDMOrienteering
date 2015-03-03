@@ -3,8 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:weightSum="4"
-    android:padding="5dp">
+    android:weightSum="3.8">
 
     <TextView
         android:id="@+id/user_name"
@@ -24,7 +23,7 @@
         android:id="@+id/difficolta"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:layout_weight="0.8"
         android:textSize="14sp" />
 
     <TextView

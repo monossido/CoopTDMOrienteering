@@ -45,7 +45,7 @@ il gioco sarà possibile cliccare sull’icona dell\'albero che aprirà una chia
 </Data></string>
     <string name="testo_About"><Data>
 <![CDATA[ Applicazione sviluppata da <b>Lorenzo Braghetto</b> (lorenzobraghetto.com) per <b>Cooperativa Terra di Mezzo</b><br><br>Licenza GPL - <a href="https://github.com/monossido/CoopTDMOrienteering">https://github.com/monossido/CoopTDMOrienteering</a>
-        <br><br>Software Open Source utilizzato:<br>- mapsforge<br>- Gson<br>- AppCompat<br>- android-saripaar<br>-Ion<br>- <a href="https://github.com/monossido/CompassLibrary">CompassLibrary</a><br><br>Grafica creata da <b>Andrea Marson</b><br><br>versione %s]]>
+        <br><br>Software Open Source utilizzato:<br>- mapsforge<br>- Gson<br>- AppCompat<br>- android-saripaar<br>- Ion<br>- <a href="https://github.com/monossido/CompassLibrary">CompassLibrary</a><br><br>Grafica creata da <b>Andrea Marson</b><br><br>versione %s]]>
 </Data></string>
     <string name="codice_esatto">Codice esatto, prosegui col prossimo punto</string>
     <string name="compass_acitivty_nerotopoint_leveleasy">Sei vicino al punto che devi trovare, premi indietro per inserire il codice o per tappare l\'NFC</string>

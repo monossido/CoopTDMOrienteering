@@ -1,2 +1,2 @@
-include ':compassLibrary'
+include '..:Compass-Library:app'
 include ':coopTDMOrientiringVillaBea'
