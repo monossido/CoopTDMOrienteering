@@ -1,0 +1,41 @@
+apply plugin: 'com.android.application'
+
+android {
+    signingConfigs {
+        config {
+            keyAlias 'monossido'
+            keyPassword 'ktmracing'
+            storeFile file('/home/monossido/AndroidDev/keystore/keystore')
+            storePassword 'ktmracing'
+        }
+    }
+    compileSdkVersion 21
+    buildToolsVersion "21.1.2"
+    defaultConfig {
+        applicationId "com.lorenzobraghetto.cooptdmorienteeringvillabea"
+        minSdkVersion 9
+        targetSdkVersion 21
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            signingConfig signingConfigs.config
+        }
+        debug {
+            signingConfig signingConfigs.config
+        }
+    }
+}
+
+dependencies {
+    compile project(':compassLibrary')
+    compile 'com.google.code.gson:gson:2.3'
+    compile 'com.android.support:appcompat-v7:21.0.3'
+    compile 'com.mobsandgeeks:android-saripaar:1.0.3'
+    compile 'com.koushikdutta.ion:ion:2.0.5'
+    compile 'org.mapsforge:mapsforge-map:0.5.0'
+    compile 'org.mapsforge:mapsforge-core:0.5.0'
+    compile 'org.mapsforge:mapsforge-map-android:0.5.0'
+    compile 'org.mapsforge:mapsforge-map-reader:0.5.0'
+}

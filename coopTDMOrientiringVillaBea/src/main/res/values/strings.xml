@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="primary">#03A9F4</color>
+    <color name="primary_dark">#0288D1</color>
+    <color name="primary_light">#B3E5FC</color>
+    <color name="accent">#448AFF</color>
+    <color name="primary_text">#212121</color>
+    <color name="secondary_text">#727272</color>
+    <color name="icons">#FFFFFF</color>
+    <color name="divider">#B6B6B6</color>
+
+    <string name="app_name">Naturorienteering - Villa Beatrice</string>
+    <string name="hint_desc">Segui l\'indovinello e trova l\'adesivo NFC con il codice, puoi usare NFC se il tuo telefono lo supporta oppure puoi inserire il codice sotto l\'immagine</string>
+    <string name="hint_desc_diff">Trova l\'adesivo NFC con il codice, puoi usare NFC se il tuo telefono lo supporta oppure puoi inserire il codice sotto l\'immagine</string>
+    <string name="inizia">Inizia</string>
+    <string name="about">About</string>
+    <string name="on_back_pressed">Premi di nuovo il pulsante indietro per uscire</string>
+    <string name="dialog_title">Errore</string>
+    <string name="dialog_message">Abilita la localizzazione fra le impostazioni del tuo cellulare</string>
+    <string name="dialog_nfc_title">NFC</string>
+    <string name="dialog_nfc_message">Il tuo device support l\'NFC, ma non è attivato, premi OK per aprire le impostazioni</string>
+    <string name="complimenti">Complimenti</string>
+    <string name="completato_in">Hai completato la caccia al tesoro in</string>
+    <string name="punteggio">Invia il punteggio e visualizza la classifica\n</string>
+    <string name="classifica">Visualizza la classifica\n</string>
+    <string name="difficolta">Seleziona livello di difficoltà</string>
+    <string name="info">Info sul gioco</string>
+    <string name="no_partite">Non è stata inserita ancora nessuna partita</string>
+    <string name="testo_iniziale">Questo gioco consiste nel completare un percorso predefinito, visitando una serie di punti di controllo, con il solo uso della bussola e della cartina topografica, il più velocemente possibile.\nClicca su \"Info\" per le regole del gioco, \"About\" per maggiori informazioni</string>
+    <string name="testo_info"><Data>
+<![CDATA[ Questo gioco consiste nel completare un percorso predefinito, visitando una serie di punti di controllo,
+con il solo uso della bussola e della cartina topografica riportante i dettagli del luogo, il più velocemente possibile.<br><br>
+Questo orienteering interessa il parco di Villa Beatrice che ospita al suo interno un vigneto di proprietà 
+privata e delle piante protette, vi invitiamo quindi durante il gioco a seguire le strade segnate e a non passare attraverso il vigneto.\n
+Alla partenza del gioco apparirà sulla cartina un cerchio blu che sarà il primo punto da raggiungere.<br><br>
+Quando vi avvicinerete al punto apparirà una descrizione che vi permetterà di individuare il supporto dove 
+troverete un adesivo NFC da passare sul cellulare o un codice da inserire. Dopo aver inserito il codice apparirà 
+sulla cartina il secondo punto da raggiungere e così via.<br><br>
+I punti da raggiungere sono dieci e dopo aver 
+inserito l’ultimo codice il tempo si fermerà e potrete confrontarvi con i vostri amici per vedere chi è stato il 
+più veloce.<br><br>
+Molti dei punti si trovano vicino a degli alberi; per facilitare l\'individuazione delle piante durante 
+il gioco sarà possibile cliccare sull’icona dell\'albero che aprirà una chiave di riconoscimento.<br><b>Buona partita!</b>]]>
+</Data></string>
+    <string name="testo_About"><Data>
+<![CDATA[ Applicazione sviluppata da <b>Lorenzo Braghetto</b> (lorenzobraghetto.com) per <b>Cooperativa Terra di Mezzo</b><br><br>Licenza GPL - <a href="https://github.com/monossido/CoopTDMOrienteering">https://github.com/monossido/CoopTDMOrienteering</a>
+        <br><br>Software Open Source utilizzato:<br>- mapsforge<br>- Gson<br>- AppCompat<br>- android-saripaar<br>-Ion<br>- <a href="https://github.com/monossido/CompassLibrary">CompassLibrary</a><br><br>Grafica creata da <b>Andrea Marson</b><br><br>versione %s]]>
+</Data></string>
+    <string name="codice_esatto">Codice esatto, prosegui col prossimo punto</string>
+    <string name="compass_acitivty_nerotopoint_leveleasy">Sei vicino al punto che devi trovare, premi indietro per inserire il codice o per tappare l\'NFC</string>
+    <string name="compass_acitivty_nerotopoint_levelDifficult">In modalità difficile non puoi usare la bussola quando sei vicino ad un punto</string>
+    <string name="compass_acitivty_nerotopoint_levelextreme">In modalità estremo non puoi usare la bussola, deal with it!</string>
+    <string name="testo_vicino_alpunto">Clicca sul punto per visualizzare il suggerimento e inserire il codice</string>
+    <string name="errore_download">Errore nel download dei dati</string>
+    <string name="ok">Ok</string>
+    <string name="points_status">%s/10</string>
+
+    <string-array name="difficult_levels">
+        <item>Facile</item>
+        <item>Difficile</item>
+        <item>Estremo</item>
+    </string-array>
+
+</resources>
